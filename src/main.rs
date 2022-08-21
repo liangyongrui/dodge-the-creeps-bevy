@@ -5,7 +5,7 @@ use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin;
+use dodge_the_creeps_bevy::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -14,9 +14,9 @@ fn main() {
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
         .insert_resource(WindowDescriptor {
-            width: 800.,
-            height: 600.,
-            title: "Bevy game".to_string(), // ToDo
+            width: 400.,
+            height: 720.,
+            title: "Dodge the Creeps!".to_string(), 
             canvas: Some("#bevy".to_owned()),
             ..Default::default()
         })
