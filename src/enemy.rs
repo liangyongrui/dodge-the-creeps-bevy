@@ -53,7 +53,7 @@ fn spawn_enemy(
     let translation = seg.random_point();
     let mut rng = rand::thread_rng();
     let direction =
-        Vec2::new(-r.y, r.x).rotate(Vec2::from_angle(rng.gen_range(-PI / 4.0..PI / 4.0)));
+        Vec2::new(r.y, -r.x).rotate(Vec2::from_angle(rng.gen_range(-PI / 4.0..PI / 4.0)));
     let speed = rng.gen_range(300.0..600.);
 
     commands
@@ -62,7 +62,7 @@ fn spawn_enemy(
                 transform: Transform {
                     translation: translation.extend(0.),
                     scale: Vec3::new(0.5, 0.5, 0.5),
-                    ..Default::default()
+                    rotation: Quat::from_xyzw(direction.x, direction.y, 0., 1.),
                 },
                 animation: Animation::new(0.2, enemy_assets.random()),
             }
@@ -70,9 +70,9 @@ fn spawn_enemy(
         )
         .insert(Enemy { direction, speed })
         .insert(RigidBody::Dynamic)
-        .insert(Collider::capsule_y(20.0, 50.0))
+        .insert(Collider::capsule_x(20.0, 50.0))
         .insert(GravityScale(0.))
-        .insert(CollisionGroups::new(0b1, 0b01));
+        .insert(CollisionGroups::new(0b1, 0b10));
 }
 
 fn move_enemy(
@@ -82,6 +82,7 @@ fn move_enemy(
     mut enemy_query: Query<(&mut Transform, &mut Animation, &Enemy), With<Enemy>>,
 ) {
     for (mut enemy_transform, mut animation, enemy) in &mut enemy_query {
-        enemy_transform.translation += time.delta_seconds() * enemy.direction.extend(0.)
+        enemy_transform.translation +=
+            enemy.speed * time.delta_seconds() * enemy.direction.extend(0.);
     }
 }

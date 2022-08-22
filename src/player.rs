@@ -39,8 +39,8 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) 
         .insert(Player { speed: 400. })
         .insert(RigidBody::Dynamic)
         .insert(Collider::capsule_y(20.0, 50.0))
-        .insert(GravityScale(0.))
-        .insert(CollisionGroups::default());
+        .insert(GravityScale(0.));
+        // .insert(CollisionGroups::default());
 }
 
 fn move_player(
