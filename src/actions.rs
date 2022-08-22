@@ -1,5 +1,6 @@
-use crate::GameState;
 use bevy::prelude::*;
+
+use crate::GameState;
 
 pub struct ActionsPlugin;
 
@@ -84,7 +85,7 @@ enum GameControl {
 
 impl GameControl {
     fn just_released(&self, keyboard_input: &Res<Input<KeyCode>>) -> bool {
-        match self {
+        match *self {
             GameControl::Up => {
                 keyboard_input.just_released(KeyCode::W)
                     || keyboard_input.just_released(KeyCode::Up)
@@ -105,7 +106,7 @@ impl GameControl {
     }
 
     fn pressed(&self, keyboard_input: &Res<Input<KeyCode>>) -> bool {
-        match self {
+        match *self {
             GameControl::Up => {
                 keyboard_input.pressed(KeyCode::W) || keyboard_input.pressed(KeyCode::Up)
             }
@@ -122,7 +123,7 @@ impl GameControl {
     }
 
     fn just_pressed(&self, keyboard_input: &Res<Input<KeyCode>>) -> bool {
-        match self {
+        match *self {
             GameControl::Up => {
                 keyboard_input.just_pressed(KeyCode::W) || keyboard_input.just_pressed(KeyCode::Up)
             }

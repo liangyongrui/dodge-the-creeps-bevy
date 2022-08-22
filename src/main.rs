@@ -1,12 +1,13 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::io::Cursor;
+
 use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
 use dodge_the_creeps_bevy::GamePlugin;
-use std::io::Cursor;
 use winit::window::Icon;
 
 fn main() {
@@ -16,7 +17,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 400.,
             height: 720.,
-            title: "Dodge the Creeps!".to_string(), 
+            title: "Dodge the Creeps!".to_owned(),
             canvas: Some("#bevy".to_owned()),
             ..Default::default()
         })

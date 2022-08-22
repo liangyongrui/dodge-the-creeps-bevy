@@ -1,0 +1,6 @@
+# cargo +nightly fmt
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"
+newline_style = "Unix"
+reorder_impl_items = true
+tab_spaces = 4

@@ -1,8 +1,20 @@
 mod actions;
 mod audio;
+mod common;
+mod enemy;
 mod loading;
 mod menu;
 mod player;
+
+use bevy::app::App;
+#[cfg(debug_assertions)]
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
+use common::animation::AnimationPlugin;
+use common::path::Path;
+use common::GameState;
+use enemy::EnemyPlugin;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -10,25 +22,18 @@ use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
 
-use bevy::app::App;
-#[cfg(debug_assertions)]
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
-
-// This example game uses States to separate logic
-// See https://bevy-cheatbook.github.io/programming/states.html
-// Or https://github.com/bevyengine/bevy/blob/main/examples/ecs/state.rs
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
-    // During the loading State the LoadingPlugin will load our assets
-    Loading,
-    // During this State the actual game logic is executed
-    Playing,
-    // Here the menu is drawn and waiting for player interaction
-    Menu,
+#[derive(Deref)]
+pub struct ScreenPath(Path<4>);
+impl Default for ScreenPath {
+    fn default() -> Self {
+        Self(Path([
+            Vec2::new(-200., 360.),
+            Vec2::new(200., 360.),
+            Vec2::new(200., -360.),
+            Vec2::new(-200., -360.),
+        ]))
+    }
 }
-
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -39,7 +44,10 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0));
+            .add_plugin(EnemyPlugin)
+            .add_plugin(AnimationPlugin)
+            .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+            .init_resource::<ScreenPath>();
 
         #[cfg(debug_assertions)]
         {

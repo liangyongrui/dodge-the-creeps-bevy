@@ -1,6 +1,7 @@
+use bevy::prelude::*;
+
 use crate::loading::FontAssets;
 use crate::GameState;
-use bevy::prelude::*;
 
 pub struct MenuPlugin;
 
@@ -51,7 +52,7 @@ fn setup_menu(
             parent.spawn_bundle(TextBundle {
                 text: Text {
                     sections: vec![TextSection {
-                        value: "Play".to_string(),
+                        value: "Play".to_owned(),
                         style: TextStyle {
                             font: font_assets.fira_sans.clone(),
                             font_size: 40.0,
@@ -64,7 +65,7 @@ fn setup_menu(
             });
         });
 }
-
+#[allow(clippy::type_complexity)]
 fn click_play_button(
     button_colors: Res<ButtonColors>,
     mut state: ResMut<State<GameState>>,
