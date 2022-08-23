@@ -56,18 +56,15 @@ fn spawn_enemy(
     let r = seg.rotation();
     let translation = seg.random_point();
     let mut rng = rand::thread_rng();
-    let direction =
-        Vec2::new(r.y, -r.x).rotate(Vec2::from_angle(rng.gen_range(-PI / 4.0..PI / 4.0)));
-    let speed = rng.gen_range(200.0..600.);
-
+    let direction = r.rotate(Vec2::from_angle(rng.gen_range(-PI * 3.0 / 4.0..-PI / 4.0)));
+    let speed = rng.gen_range(100.0..300.);
     commands
         .spawn_bundle(
             AnimationSpriteBundleBuilder {
                 transform: Transform {
                     translation: translation.extend(0.),
                     scale: Vec3::new(0.5, 0.5, 0.5),
-                    // rotation: Quat::from_xyzw(direction.x, direction.y, 0., 1.),
-                    rotation: Default::default(),
+                    rotation: Quat::from_rotation_z(Vec2::X.angle_between(direction)),
                 },
                 animation: Animation::new(0.2, enemy_assets.random()),
             }
@@ -75,8 +72,10 @@ fn spawn_enemy(
         )
         .insert(Enemy { direction, speed })
         .insert(RigidBody::Dynamic)
-        .insert(Collider::capsule_x(20.0, 50.0))
-        .insert(CollisionGroups::new(0b1, 0b10));
+        .insert(Collider::capsule_x(15.0, 40.0))
+        .insert(CollisionGroups::new(0b1, 0b10))
+        // .insert(Velocity::linear(direction))
+        .insert(LockedAxes::ROTATION_LOCKED);
 }
 
 fn move_enemy(
@@ -92,5 +91,20 @@ fn move_enemy(
         {
             commands.entity(entity).despawn();
         }
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::dbg_macro)]
+mod test {
+    use std::f32::consts::PI;
+
+    use bevy::prelude::*;
+
+    #[test]
+    fn foo() {
+        let t = Vec2::new(0., -1.);
+        let u = t.rotate(Vec2::from_angle(PI / 2.));
+        dbg!(t, u, Vec2::from_angle(PI / 2.));
     }
 }

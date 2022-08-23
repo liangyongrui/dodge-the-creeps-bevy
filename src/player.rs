@@ -45,7 +45,8 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) 
         .insert(Player { speed: 400. })
         .insert(RigidBody::Dynamic)
         .insert(Collider::capsule_y(20.0, 50.0))
-        .insert(ActiveEvents::COLLISION_EVENTS);
+        .insert(ActiveEvents::COLLISION_EVENTS)
+        .insert(LockedAxes::ROTATION_LOCKED);
 }
 
 fn move_player(

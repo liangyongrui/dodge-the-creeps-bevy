@@ -29,4 +29,6 @@ rustflags = [
   "-Aclippy::mod-module-files",
   "-Aclippy::indexing-slicing",
   "-Aclippy::std-instead-of-core",
+  "-Aclippy::cast-possible-truncation",
+  "-Aclippy::as-conversions",
 ]

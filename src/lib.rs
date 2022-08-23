@@ -5,6 +5,7 @@ mod enemy;
 mod loading;
 mod menu;
 mod player;
+mod ui;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -15,6 +16,7 @@ use common::animation::AnimationPlugin;
 use common::path::Path;
 use common::GameState;
 use enemy::EnemyPlugin;
+use ui::UiPlugin;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -39,6 +41,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state(GameState::Loading)
+            .add_plugin(UiPlugin)
             .add_plugin(LoadingPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
