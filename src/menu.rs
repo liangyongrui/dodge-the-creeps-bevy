@@ -38,10 +38,16 @@ fn setup_menu(
     commands
         .spawn_bundle(ButtonBundle {
             style: Style {
-                size: Size::new(Val::Px(120.0), Val::Px(50.0)),
+                size: Size::new(Val::Px(200.0), Val::Px(80.0)),
                 margin: UiRect::all(Val::Auto),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                position_type: PositionType::Absolute,
+                position: UiRect {
+                    bottom: Val::Px(50.0),
+                    right: Val::Px(100.),
+                    ..default()
+                },
                 ..Default::default()
             },
             color: button_colors.normal,
@@ -53,8 +59,8 @@ fn setup_menu(
                     sections: vec![TextSection {
                         value: "Play".to_owned(),
                         style: TextStyle {
-                            font: font_assets.fira_sans.clone(),
-                            font_size: 40.0,
+                            font: font_assets.xolonium_regular.clone(),
+                            font_size: 50.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     }],
@@ -62,6 +68,25 @@ fn setup_menu(
                 },
                 ..Default::default()
             });
+            parent.spawn_bundle(
+                TextBundle::from_section(
+                    "Dodge the\nCreeps!",
+                    TextStyle {
+                        font: font_assets.xolonium_regular.clone(),
+                        font_size: 80.0,
+                        color: Color::WHITE,
+                    },
+                )
+                .with_text_alignment(TextAlignment::TOP_CENTER)
+                .with_style(Style {
+                    position_type: PositionType::Absolute,
+                    position: UiRect {
+                        bottom: Val::Px(300.0),
+                        ..default()
+                    },
+                    ..default()
+                }),
+            );
         });
 }
 

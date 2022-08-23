@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::actions::Actions;
+use crate::audio::GameOverEvent;
 use crate::common::animation::{update_animation, Animation, AnimationSpriteBundleBuilder};
 use crate::common::clear_entities;
 use crate::loading::PlayerTextureAtlas;
@@ -29,7 +30,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) {
+pub fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) {
     commands
         .spawn_bundle(
             AnimationSpriteBundleBuilder {
@@ -77,8 +78,18 @@ fn move_player(
     }
 }
 
-fn collision_event(mut events: EventReader<CollisionEvent>, mut state: ResMut<State<GameState>>) {
-    if events.iter().last().is_some() {
+fn collision_event(
+    mut game_over: EventWriter<GameOverEvent>,
+    mut events: EventReader<CollisionEvent>,
+    mut state: ResMut<State<GameState>>,
+) {
+    if events
+        .iter()
+        .filter(|t| matches!(t, CollisionEvent::Started(..)))
+        .last()
+        .is_some()
+    {
+        game_over.send(GameOverEvent);
         state.set(GameState::Menu).unwrap();
     }
 }

@@ -7,6 +7,7 @@ use rand::Rng;
 use crate::common::animation::{update_animation, Animation, AnimationSpriteBundleBuilder};
 use crate::common::clear_entities;
 use crate::loading::EnemyTextureAtlas;
+use crate::player::spawn_player;
 use crate::{GameState, ScreenPath};
 
 pub struct EnemyPlugin;
@@ -31,7 +32,8 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EnemyTimer>()
             .add_system_set(
-                SystemSet::on_enter(GameState::Playing).with_system(clear_entities::<Enemy>),
+                SystemSet::on_enter(GameState::Playing)
+                    .with_system(clear_entities::<Enemy>.before(spawn_player)),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)

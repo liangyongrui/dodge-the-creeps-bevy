@@ -30,14 +30,14 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection)]
 pub struct FontAssets {
-    #[asset(path = "fonts/FiraSans-Bold.ttf")]
-    pub fira_sans: Handle<Font>,
+    #[asset(path = "fonts/Xolonium-Regular.ttf")]
+    pub xolonium_regular: Handle<Font>,
 }
 
 #[derive(AssetCollection)]
 pub struct AudioAssets {
-    #[asset(path = "audio/flying.ogg")]
-    pub flying: Handle<AudioSource>,
+    #[asset(path = "audio/gameover.wav")]
+    pub gameover: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection)]
