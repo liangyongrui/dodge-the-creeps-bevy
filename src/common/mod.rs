@@ -1,7 +1,10 @@
 //! 这里是一些和游戏逻辑无关的代码
-//! 
+//!
+
 pub mod animation;
 pub mod path;
+
+use bevy::prelude::*;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -14,4 +17,10 @@ pub enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
+}
+
+pub fn clear_entities<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {
+    for e in &query {
+        commands.entity(e).despawn();
+    }
 }

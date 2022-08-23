@@ -47,7 +47,8 @@ impl Plugin for GamePlugin {
             .add_plugin(EnemyPlugin)
             .add_plugin(AnimationPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-            .init_resource::<ScreenPath>();
+            .init_resource::<ScreenPath>()
+            .add_startup_system(setup);
 
         #[cfg(debug_assertions)]
         {
@@ -56,4 +57,9 @@ impl Plugin for GamePlugin {
                 .add_plugin(RapierDebugRenderPlugin::default());
         }
     }
+}
+
+pub fn setup(mut commands: Commands, mut rapier_configuration: ResMut<RapierConfiguration>) {
+    commands.spawn_bundle(Camera2dBundle::default());
+    rapier_configuration.gravity = Vec2::ZERO;
 }

@@ -1,8 +1,9 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, GravityScale, RigidBody};
+use bevy_rapier2d::prelude::*;
 
 use crate::actions::Actions;
 use crate::common::animation::{update_animation, Animation, AnimationSpriteBundleBuilder};
+use crate::common::clear_entities;
 use crate::loading::PlayerTextureAtlas;
 use crate::GameState;
 
@@ -15,11 +16,16 @@ pub struct Player {
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_player))
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    .with_system(move_player.before(update_animation)),
-            );
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Playing)
+                .with_system(clear_entities::<Player>.before(spawn_player))
+                .with_system(spawn_player),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Playing)
+                .with_system(move_player.before(update_animation))
+                .with_system(collision_event),
+        );
     }
 }
 
@@ -39,8 +45,7 @@ fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) 
         .insert(Player { speed: 400. })
         .insert(RigidBody::Dynamic)
         .insert(Collider::capsule_y(20.0, 50.0))
-        .insert(GravityScale(0.));
-        // .insert(CollisionGroups::default());
+        .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn move_player(
@@ -68,5 +73,11 @@ fn move_player(
             }
         }
         animation.stop();
+    }
+}
+
+fn collision_event(mut events: EventReader<CollisionEvent>, mut state: ResMut<State<GameState>>) {
+    if events.iter().last().is_some() {
+        state.set(GameState::Menu).unwrap();
     }
 }
