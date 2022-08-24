@@ -104,7 +104,6 @@ pub fn update_animation(
     }
 }
 
-
 pub fn general_texture_atlas_handle(
     images: &[&Handle<Image>],
     textures: &mut ResMut<Assets<Image>>,
