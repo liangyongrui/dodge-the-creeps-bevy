@@ -188,6 +188,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
+name = "benimator"
+version = "4.0.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "236a354863292a126b82925f021681b128e54aafc40d2065045411fad166f4bf"
+dependencies = [
+ "rustc_version",
+]
+
+[[package]]
 name = "bevy"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1336,6 +1345,7 @@ checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 name = "dodge-the-creeps-bevy"
 version = "0.1.0"
 dependencies = [
+ "benimator",
  "bevy",
  "bevy_asset_loader",
  "bevy_kira_audio",

@@ -1,8 +1,9 @@
+use benimator::FrameRate;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::audio::GameOverEvent;
-use crate::common::animation::{update_animation, Animation, AnimationSpriteBundleBuilder};
+use crate::common::animation::{animate, Animation, AnimationState};
 use crate::common::clear_entities;
 use crate::loading::PlayerTextureAtlas;
 use crate::GameState;
@@ -23,7 +24,8 @@ impl Plugin for PlayerPlugin {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
-                .with_system(move_player.before(update_animation))
+                .with_system(keyboard_move_player.before(animate))
+                .with_system(touch_move_player.before(animate))
                 .with_system(collision_event),
         );
     }
@@ -31,17 +33,17 @@ impl Plugin for PlayerPlugin {
 
 pub fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtlas>) {
     commands
-        .spawn_bundle(
-            AnimationSpriteBundleBuilder {
-                transform: Transform {
-                    translation: Vec3::new(0., 0., 1.),
-                    scale: Vec3::new(0.5, 0.5, 0.5),
-                    ..Default::default()
-                },
-                animation: Animation::new(0.2, player_assets.up.clone()),
-            }
-            .build(),
-        )
+        .spawn_bundle(SpriteSheetBundle {
+            transform: Transform {
+                translation: Vec3::new(0., 0., 1.),
+                scale: Vec3::new(0.5, 0.5, 0.5),
+                ..Default::default()
+            },
+            texture_atlas: player_assets.up.clone(),
+            ..Default::default()
+        })
+        .insert(Animation::from_indices(0..2, FrameRate::from_fps(5.0)))
+        .insert(AnimationState::default())
         .insert(Player { speed: 400. })
         .insert(RigidBody::Dynamic)
         .insert(Collider::capsule_y(10.0, 40.0))
@@ -49,42 +51,101 @@ pub fn spawn_player(mut commands: Commands, player_assets: Res<PlayerTextureAtla
         .insert(LockedAxes::ROTATION_LOCKED);
 }
 
-fn move_player(
+fn keyboard_move_player(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     player_assets: Res<PlayerTextureAtlas>,
-    mut player_query: Query<(&mut Transform, &mut Animation, &Player)>,
+    mut player_query: Query<(
+        &mut Transform,
+        &mut AnimationState,
+        &Player,
+        &mut TextureAtlasSprite,
+        &mut Handle<TextureAtlas>,
+    )>,
 ) {
-    for (mut player_transform, mut animation, player) in &mut player_query {
-        let mut player_movement = Vec2::ZERO;
+    for (player_transform, animation, player, sprite, texture_atlas) in &mut player_query {
+        let mut movement = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::Up) {
-            player_movement.y += 1.;
+            movement.y += 1.;
         }
         if keyboard_input.pressed(KeyCode::Down) {
-            player_movement.y -= 1.;
+            movement.y -= 1.;
         }
         if keyboard_input.pressed(KeyCode::Right) {
-            player_movement.x += 1.;
+            movement.x += 1.;
         }
         if keyboard_input.pressed(KeyCode::Left) {
-            player_movement.x -= 1.;
+            movement.x -= 1.;
         }
-        if player_movement == Vec2::ZERO {
-            animation.stop();
-        } else {
-            animation.play();
-            if player_movement.x == 0. {
-                animation.update_texture_atlas(&player_assets.up);
-                animation.flip_y(player_movement.y < 0.);
-            } else {
-                animation.update_texture_atlas(&player_assets.walk);
-                animation.flip_y(false);
-                animation.flip_x(player_movement.x < 0.);
+        movement *= player.speed * time.delta_seconds();
+        move_player(
+            movement,
+            animation,
+            sprite,
+            texture_atlas,
+            &player_assets,
+            player_transform,
+        );
+    }
+}
+
+fn touch_move_player(
+    time: Res<Time>,
+    touches: Res<Touches>,
+    player_assets: Res<PlayerTextureAtlas>,
+    mut player_query: Query<(
+        &mut Transform,
+        &mut AnimationState,
+        &Player,
+        &mut TextureAtlasSprite,
+        &mut Handle<TextureAtlas>,
+    )>,
+) {
+    for finger in touches.iter() {
+        if touches.just_pressed(finger.id()) {
+            for (player_transform, animation, player, sprite, texture_atlas) in &mut player_query {
+                let movement = finger.position() - player_transform.translation.truncate();
+                if movement.length() <= player.speed * time.delta_seconds() {
+                    move_player(
+                        movement,
+                        animation,
+                        sprite,
+                        texture_atlas,
+                        &player_assets,
+                        player_transform,
+                    );
+                }
             }
-            let movement = player_movement * player.speed * time.delta_seconds();
-            player_transform.translation = (player_transform.translation + movement.extend(0.))
-                .clamp(Vec3::new(-200., -360., 0.), Vec3::new(200., 360., 0.));
         }
+    }
+}
+
+fn move_player(
+    movement: Vec2,
+    mut animation: Mut<AnimationState>,
+    mut sprite: Mut<TextureAtlasSprite>,
+    mut texture_atlas: Mut<Handle<TextureAtlas>>,
+    player_assets: &Res<PlayerTextureAtlas>,
+    mut player_transform: Mut<Transform>,
+) {
+    if movement == Vec2::ZERO {
+        animation.stop();
+    } else {
+        animation.play();
+        if movement.x == 0. {
+            if texture_atlas.id != player_assets.up.id {
+                *texture_atlas = player_assets.up.clone();
+            }
+            sprite.flip_y = movement.y < 0.0;
+        } else {
+            if texture_atlas.id != player_assets.walk.id {
+                *texture_atlas = player_assets.walk.clone();
+            }
+            sprite.flip_y = false;
+            sprite.flip_x = movement.x < 0.0;
+        }
+        player_transform.translation = (player_transform.translation + movement.extend(0.))
+            .clamp(Vec3::new(-200., -360., 0.), Vec3::new(200., 360., 0.));
     }
 }
 

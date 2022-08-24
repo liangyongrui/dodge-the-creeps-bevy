@@ -32,4 +32,5 @@ rustflags = [
   "-Aclippy::cast-possible-truncation",
   "-Aclippy::as-conversions",
   "-Aclippy::pattern-type-mismatch",
+  "-Aclippy::only-used-in-recursion",
 ]

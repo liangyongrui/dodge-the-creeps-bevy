@@ -2,8 +2,20 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
 
-use crate::common::animation::general_texture_atlas_handle;
 use crate::GameState;
+
+fn general_texture_atlas_handle(
+    images: &[&Handle<Image>],
+    textures: &mut ResMut<Assets<Image>>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+) -> Handle<TextureAtlas> {
+    let mut texture_atlas_builder = TextureAtlasBuilder::default();
+    for &i in images {
+        let texture = textures.get(i).unwrap();
+        texture_atlas_builder.add_texture(i.clone(), texture);
+    }
+    texture_atlases.add(texture_atlas_builder.finish(textures).unwrap())
+}
 
 pub struct LoadingPlugin;
 
