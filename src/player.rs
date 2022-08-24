@@ -25,7 +25,6 @@ impl Plugin for PlayerPlugin {
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
                 .with_system(keyboard_move_player.before(animate))
-                .with_system(touch_move_player.before(animate))
                 .with_system(collision_event),
         );
     }
@@ -63,7 +62,9 @@ fn keyboard_move_player(
         &mut Handle<TextureAtlas>,
     )>,
 ) {
-    for (player_transform, animation, player, sprite, texture_atlas) in &mut player_query {
+    for (mut player_transform, mut animation, player, mut sprite, mut texture_atlas) in
+        &mut player_query
+    {
         let mut movement = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::Up) {
             movement.y += 1.;
@@ -78,74 +79,25 @@ fn keyboard_move_player(
             movement.x -= 1.;
         }
         movement *= player.speed * time.delta_seconds();
-        move_player(
-            movement,
-            animation,
-            sprite,
-            texture_atlas,
-            &player_assets,
-            player_transform,
-        );
-    }
-}
-
-fn touch_move_player(
-    time: Res<Time>,
-    touches: Res<Touches>,
-    player_assets: Res<PlayerTextureAtlas>,
-    mut player_query: Query<(
-        &mut Transform,
-        &mut AnimationState,
-        &Player,
-        &mut TextureAtlasSprite,
-        &mut Handle<TextureAtlas>,
-    )>,
-) {
-    for finger in touches.iter() {
-        if touches.just_pressed(finger.id()) {
-            for (player_transform, animation, player, sprite, texture_atlas) in &mut player_query {
-                let movement = finger.position() - player_transform.translation.truncate();
-                if movement.length() <= player.speed * time.delta_seconds() {
-                    move_player(
-                        movement,
-                        animation,
-                        sprite,
-                        texture_atlas,
-                        &player_assets,
-                        player_transform,
-                    );
-                }
-            }
-        }
-    }
-}
-
-fn move_player(
-    movement: Vec2,
-    mut animation: Mut<AnimationState>,
-    mut sprite: Mut<TextureAtlasSprite>,
-    mut texture_atlas: Mut<Handle<TextureAtlas>>,
-    player_assets: &Res<PlayerTextureAtlas>,
-    mut player_transform: Mut<Transform>,
-) {
-    if movement == Vec2::ZERO {
-        animation.stop();
-    } else {
-        animation.play();
-        if movement.x == 0. {
-            if texture_atlas.id != player_assets.up.id {
-                *texture_atlas = player_assets.up.clone();
-            }
-            sprite.flip_y = movement.y < 0.0;
+        if movement == Vec2::ZERO {
+            animation.stop();
         } else {
-            if texture_atlas.id != player_assets.walk.id {
-                *texture_atlas = player_assets.walk.clone();
+            animation.play();
+            if movement.x == 0. {
+                if texture_atlas.id != player_assets.up.id {
+                    *texture_atlas = player_assets.up.clone();
+                }
+                sprite.flip_y = movement.y < 0.0;
+            } else {
+                if texture_atlas.id != player_assets.walk.id {
+                    *texture_atlas = player_assets.walk.clone();
+                }
+                sprite.flip_y = false;
+                sprite.flip_x = movement.x < 0.0;
             }
-            sprite.flip_y = false;
-            sprite.flip_x = movement.x < 0.0;
+            player_transform.translation = (player_transform.translation + movement.extend(0.))
+                .clamp(Vec3::new(-200., -360., 0.), Vec3::new(200., 360., 0.));
         }
-        player_transform.translation = (player_transform.translation + movement.extend(0.))
-            .clamp(Vec3::new(-200., -360., 0.), Vec3::new(200., 360., 0.));
     }
 }
 
