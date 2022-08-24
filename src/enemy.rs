@@ -15,7 +15,6 @@ pub struct EnemyPlugin;
 #[derive(Component)]
 pub struct Enemy {
     direction: Vec2,
-    /// 每秒移动距离
     speed: f32,
 }
 
@@ -55,16 +54,15 @@ fn spawn_enemy(
         return;
     }
     let seg = path.random_segment();
-    let r = seg.rotation();
-    let translation = seg.random_point();
     let mut rng = rand::thread_rng();
+    let r = seg.rotation();
     let direction = r.rotate(Vec2::from_angle(rng.gen_range(-PI * 3.0 / 4.0..-PI / 4.0)));
-    let speed = rng.gen_range(100.0..300.);
+    let speed = rng.gen_range(100.0..300.0);
     commands
         .spawn_bundle(
             AnimationSpriteBundleBuilder {
                 transform: Transform {
-                    translation: translation.extend(0.),
+                    translation: seg.random_point().extend(0.),
                     scale: Vec3::new(0.5, 0.5, 0.5),
                     rotation: Quat::from_rotation_z(Vec2::X.angle_between(direction)),
                 },
@@ -74,9 +72,8 @@ fn spawn_enemy(
         )
         .insert(Enemy { direction, speed })
         .insert(RigidBody::Dynamic)
-        .insert(Collider::capsule_x(15.0, 40.0))
+        .insert(Collider::capsule_x(10.0, 40.0))
         .insert(CollisionGroups::new(0b1, 0b10))
-        // .insert(Velocity::linear(direction))
         .insert(LockedAxes::ROTATION_LOCKED);
 }
 
@@ -93,20 +90,5 @@ fn move_enemy(
         {
             commands.entity(entity).despawn();
         }
-    }
-}
-
-#[cfg(test)]
-#[allow(clippy::dbg_macro)]
-mod test {
-    use std::f32::consts::PI;
-
-    use bevy::prelude::*;
-
-    #[test]
-    fn foo() {
-        let t = Vec2::new(0., -1.);
-        let u = t.rotate(Vec2::from_angle(PI / 2.));
-        dbg!(t, u, Vec2::from_angle(PI / 2.));
     }
 }

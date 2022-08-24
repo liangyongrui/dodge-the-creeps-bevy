@@ -12,7 +12,6 @@ impl Plugin for UiPlugin {
             .add_system_set(SystemSet::on_update(GameState::Playing).with_system(update_score));
     }
 }
-// A unit struct to help identify the FPS UI component, since there may be many Text components
 #[derive(Component)]
 struct Score(f32);
 

@@ -103,3 +103,17 @@ pub fn update_animation(
         }
     }
 }
+
+
+pub fn general_texture_atlas_handle(
+    images: &[&Handle<Image>],
+    textures: &mut ResMut<Assets<Image>>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+) -> Handle<TextureAtlas> {
+    let mut texture_atlas_builder = TextureAtlasBuilder::default();
+    for &i in images {
+        let texture = textures.get(i).unwrap();
+        texture_atlas_builder.add_texture(i.clone(), texture);
+    }
+    texture_atlases.add(texture_atlas_builder.finish(textures).unwrap())
+}

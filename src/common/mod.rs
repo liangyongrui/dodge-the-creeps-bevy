@@ -21,6 +21,6 @@ pub enum GameState {
 
 pub fn clear_entities<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {
     for e in &query {
-        commands.entity(e).despawn();
+        commands.entity(e).despawn_recursive();
     }
 }

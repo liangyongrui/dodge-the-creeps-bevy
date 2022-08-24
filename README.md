@@ -1,5 +1,7 @@
 # Dodge the Creeps
 
-"Dodge the Creeps!" implemented in bevy.
+Reimplement "[Dodge the Creeps!](https://docs.godotengine.org/en/stable/getting_started/first_2d_game/index.html)" with bevy.
 
-<https://docs.godotengine.org/en/stable/getting_started/first_2d_game/index.html>
+## Online Preview
+
+<https://liangyongrui.github.io/dodge-the-creeps-bevy/>

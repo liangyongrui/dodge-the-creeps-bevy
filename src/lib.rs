@@ -1,4 +1,3 @@
-mod actions;
 mod audio;
 mod common;
 mod enemy;
@@ -18,7 +17,6 @@ use common::GameState;
 use enemy::EnemyPlugin;
 use ui::UiPlugin;
 
-use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
@@ -44,7 +42,6 @@ impl Plugin for GamePlugin {
             .add_plugin(UiPlugin)
             .add_plugin(LoadingPlugin)
             .add_plugin(MenuPlugin)
-            .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(EnemyPlugin)
